@@ -13,6 +13,7 @@ ksp = "1.9.0-1.0.13"
 logbackAndroid = "3.0.0"
 slf4jApi = "2.0.7"
 ktorBom = "2.3.12"
+navigationCompose = "2.7.7"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -36,6 +37,7 @@ ktor-client-android = { group = "io.ktor", name = "ktor-client-android" }
 ktor-client-content-negotiation = { group = "io.ktor", name = "ktor-client-content-negotiation" }
 ktor-client-logging = { group = "io.ktor", name = "ktor-client-logging" }
 ktor-serialization-kotlinx-json = { group = "io.ktor", name = "ktor-serialization-kotlinx-json" }
+androidx-navigation-compose = { group = "androidx.navigation", name = "navigation-compose", version.ref = "navigationCompose" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
