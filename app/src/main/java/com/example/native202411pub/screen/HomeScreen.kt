@@ -1,22 +1,37 @@
 package com.example.native202411pub.screen
 
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import com.example.native202411pub.logger
+import com.example.native202411pub.server.GitHubAPI
+import com.example.native202411pub.showDialog
 import com.example.native202411pub.ui.theme.Native202411PubTheme
+import kotlinx.coroutines.launch
 
 @Composable
 fun HomeScreen(modifier: Modifier = Modifier) {
-    Scaffold(modifier = modifier) { innerPadding ->
-        Column(modifier = Modifier
-            .fillMaxSize()
-            .padding(innerPadding)) {
-            Text(text = "home")
+    val scope = rememberCoroutineScope()
+    Column(modifier = modifier) {
+        Button(onClick = {
+            scope.launch {
+                logger.trace("Get users START")
+                runCatching {
+                    GitHubAPI.getUsers("yono-ms")
+                }.onSuccess {
+                    logger.debug(it.toString())
+                }.onFailure {
+                    logger.error("Error", it)
+                    showDialog(text = it.localizedMessage ?: "error", title = "Error")
+                }
+                logger.trace("Get users END")
+            }
+        }) {
+            Text(text = "Get users")
         }
     }
 }
