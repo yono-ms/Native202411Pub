@@ -5,12 +5,27 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import com.example.native202411pub.screen.MainScreen
 import com.example.native202411pub.ui.theme.Native202411PubTheme
+import kotlinx.coroutines.flow.MutableStateFlow
 import org.slf4j.LoggerFactory
+import kotlin.coroutines.Continuation
+import kotlin.coroutines.resume
+import kotlin.coroutines.suspendCoroutine
 
 class MainActivity : ComponentActivity() {
+
+    companion object {
+        private lateinit var Instance: MainActivity
+        fun shared(): MainActivity {
+            return Instance
+        }
+    }
 
     private val logger = LoggerFactory.getLogger(MainActivity::class.java)
 
@@ -22,13 +37,68 @@ class MainActivity : ComponentActivity() {
         logger.error("Logger TEST")
     }
 
+    private val confirmFlow: MutableStateFlow<String> = MutableStateFlow("")
+    private val dismissFlow: MutableStateFlow<String?> = MutableStateFlow(null)
+    private val titleFlow: MutableStateFlow<String?> = MutableStateFlow(null)
+    private val textFlow: MutableStateFlow<String> = MutableStateFlow("")
+
+    private lateinit var continuation: Continuation<Boolean>
+    suspend fun showAlert(
+        confirm: String,
+        dismiss: String?,
+        title: String?,
+        text: String
+    ): Boolean = suspendCoroutine {
+        continuation = it
+        confirmFlow.value = confirm
+        dismissFlow.value = dismiss
+        titleFlow.value = title
+        textFlow.value = text
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         loggerTest()
+        Instance = this
         enableEdgeToEdge()
         setContent {
             Native202411PubTheme {
                 MainScreen(modifier = Modifier.fillMaxSize())
+                val confirm = confirmFlow.collectAsState()
+                val dismiss = dismissFlow.collectAsState()
+                val title = titleFlow.collectAsState()
+                val text = textFlow.collectAsState()
+                if (text.value.isNotEmpty()) {
+                    AlertDialog(
+                        onDismissRequest = { /* no action */ },
+                        confirmButton = {
+                            TextButton(onClick = {
+                                continuation.resume(true)
+                                textFlow.value = ""
+                            }) {
+                                Text(text = confirm.value)
+                            }
+                        },
+                        dismissButton = {
+                            dismiss.value?.let {
+                                TextButton(onClick = {
+                                    continuation.resume(false)
+                                    textFlow.value = ""
+                                }) {
+                                    Text(text = it)
+                                }
+                            }
+                        },
+                        title = {
+                            title.value?.let {
+                                Text(text = it)
+                            }
+                        },
+                        text = {
+                            Text(text = text.value)
+                        }
+                    )
+                }
             }
         }
     }
