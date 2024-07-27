@@ -5,8 +5,10 @@ enum class MyScreen(
 ) {
     MAIN("Main"),
     SPLASH("Splash"),
+    TUTORIAL("Tutorial"),
     HOME("Home"),
     SETTING("Settings"),
     COMM("Comm"),
     LOGIN_EDIT("Login Edit"),
+    USERS("Users")
 }

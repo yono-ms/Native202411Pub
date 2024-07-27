@@ -26,7 +26,7 @@ import com.example.native202411pub.ui.theme.Native202411PubTheme
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainScreen(modifier: Modifier = Modifier) {
-    var mainScreen by rememberSaveable { mutableStateOf(MyScreen.HOME) }
+    var mainScreen by rememberSaveable { mutableStateOf(MyScreen.COMM) }
     val navController = rememberNavController()
     NavHost(
         navController = navController,
@@ -35,8 +35,17 @@ fun MainScreen(modifier: Modifier = Modifier) {
     ) {
         composable(MyScreen.SPLASH.name) {
             SplashScreen(modifier = modifier) {
-                navController.navigate(MyScreen.MAIN.name) {
+                navController.navigate(it.name) {
                     popUpTo(MyScreen.SPLASH.name) {
+                        inclusive = true
+                    }
+                }
+            }
+        }
+        composable(MyScreen.TUTORIAL.name) {
+            TutorialScreen {
+                navController.navigate(MyScreen.MAIN.name) {
+                    popUpTo(MyScreen.TUTORIAL.name) {
                         inclusive = true
                     }
                 }
@@ -68,7 +77,9 @@ fun MainScreen(modifier: Modifier = Modifier) {
 //                )
                 CommScreen(
                     modifier = Modifier.padding(innerPadding),
-                    onHistory = { /*TODO*/ },
+                    onHistory = {
+                        navController.navigate(MyScreen.USERS.name)
+                    },
                     onEdit = {
                         navController.navigate(MyScreen.LOGIN_EDIT.name)
                     }
@@ -77,6 +88,11 @@ fun MainScreen(modifier: Modifier = Modifier) {
         }
         composable(MyScreen.LOGIN_EDIT.name) {
             LoginEditScreen {
+                navController.navigateUp()
+            }
+        }
+        composable(MyScreen.USERS.name) {
+            UsersScreen {
                 navController.navigateUp()
             }
         }
