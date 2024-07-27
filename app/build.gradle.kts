@@ -62,6 +62,7 @@ dependencies {
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
     implementation(libs.androidx.navigation.compose)
+    implementation(libs.androidx.datastore.preferences)
     implementation(platform(libs.ktor.bom))
     implementation(libs.ktor.client.android)
     implementation(libs.ktor.client.content.negotiation)
