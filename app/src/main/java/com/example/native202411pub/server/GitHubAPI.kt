@@ -40,4 +40,11 @@ object GitHubAPI {
             return response.body()
         }
     }
+
+    suspend fun getRepos(url: String): List<GitHubRepos> {
+        getClient().use { client ->
+            val response = client.get(url)
+            return response.body()
+        }
+    }
 }

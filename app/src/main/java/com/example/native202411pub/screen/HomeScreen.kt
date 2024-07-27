@@ -7,8 +7,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
-import com.example.native202411pub.isConnectFlow
+import com.example.native202411pub.MyNetworkStatus
 import com.example.native202411pub.logger
 import com.example.native202411pub.server.GitHubAPI
 import com.example.native202411pub.server.alertMessage
@@ -19,7 +20,10 @@ import kotlinx.coroutines.launch
 @Composable
 fun HomeScreen(modifier: Modifier = Modifier) {
     val scope = rememberCoroutineScope()
-    val isConnect = isConnectFlow.collectAsState()
+    val isConnect =
+        MyNetworkStatus.getNetworkStatus(LocalContext.current).isConnectFow.collectAsState(
+            initial = false
+        )
     Column(modifier = modifier) {
         Text(text = "Network ${isConnect.value}")
         Button(onClick = {

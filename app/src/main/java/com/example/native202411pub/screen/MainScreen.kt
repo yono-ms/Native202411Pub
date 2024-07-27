@@ -63,9 +63,21 @@ fun MainScreen(modifier: Modifier = Modifier) {
                     }
                 )
             }, modifier = modifier) { innerPadding ->
-                HomeScreen(
-                    modifier = Modifier.padding(innerPadding)
+//                HomeScreen(
+//                    modifier = Modifier.padding(innerPadding)
+//                )
+                CommScreen(
+                    modifier = Modifier.padding(innerPadding),
+                    onHistory = { /*TODO*/ },
+                    onEdit = {
+                        navController.navigate(MyScreen.LOGIN_EDIT.name)
+                    }
                 )
+            }
+        }
+        composable(MyScreen.LOGIN_EDIT.name) {
+            LoginEditScreen {
+                navController.navigateUp()
             }
         }
         composable(MyScreen.SETTING.name) {

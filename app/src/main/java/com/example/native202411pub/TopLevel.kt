@@ -13,6 +13,3 @@ suspend fun showDialog(
 ): Boolean {
     return MainActivity.shared().showAlert(confirm, dismiss, title, text)
 }
-
-val isConnectFlow
-    get() = MainActivity.shared().networkStatusStateFlow
