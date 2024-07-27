@@ -1,4 +1,4 @@
-package com.example.native202411pub.server
+package com.example.native202411pub.extension
 
 import com.example.native202411pub.logger
 import io.ktor.client.call.body

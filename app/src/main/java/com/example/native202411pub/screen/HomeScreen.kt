@@ -10,9 +10,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.native202411pub.MyNetworkStatus
+import com.example.native202411pub.extension.alertMessage
 import com.example.native202411pub.logger
 import com.example.native202411pub.server.GitHubAPI
-import com.example.native202411pub.server.alertMessage
 import com.example.native202411pub.showDialog
 import com.example.native202411pub.ui.theme.Native202411PubTheme
 import kotlinx.coroutines.launch
