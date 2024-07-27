@@ -5,18 +5,16 @@ import androidx.room.PrimaryKey
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
-@Entity(tableName = "git_hub_users")
+@Entity(tableName = "git_hub_repos")
 @Serializable
-data class GitHubUsers(
+data class GitHubRepos(
     @PrimaryKey
     @SerialName("id")
-    val userId: Int,
-    @SerialName("login")
-    val login: String,
-    @SerialName("public_repos")
-    val publicRepos: Int,
-    @SerialName("repos_url")
-    val reposUrl: String,
+    val repoId: Int,
+    @SerialName("name")
+    val name: String,
     @SerialName("updated_at")
-    val updatedAt: String
+    val updatedAt: String,
+
+    var userId: Int = 0
 )
