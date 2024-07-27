@@ -7,7 +7,7 @@ enum class MyScreen(
     SPLASH("Splash"),
     TUTORIAL("Tutorial"),
     HOME("Home"),
-    SETTING("Settings"),
+    SETTINGS("Settings"),
     COMM("Comm"),
     LOGIN_EDIT("Login Edit"),
     USERS("Users")

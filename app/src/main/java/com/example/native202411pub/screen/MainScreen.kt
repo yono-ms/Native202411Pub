@@ -61,7 +61,7 @@ fun MainScreen(modifier: Modifier = Modifier) {
                     title = { Text(text = mainScreen.title) },
                     actions = {
                         IconButton(onClick = {
-                            navController.navigate(MyScreen.SETTING.name)
+                            navController.navigate(MyScreen.SETTINGS.name)
                         }) {
                             Icon(
                                 Icons.Filled.Settings,
@@ -96,8 +96,10 @@ fun MainScreen(modifier: Modifier = Modifier) {
                 navController.navigateUp()
             }
         }
-        composable(MyScreen.SETTING.name) {
-            Text(text = "SETTING")
+        composable(MyScreen.SETTINGS.name) {
+            SettingsScreen {
+                navController.navigateUp()
+            }
         }
     }
 }
