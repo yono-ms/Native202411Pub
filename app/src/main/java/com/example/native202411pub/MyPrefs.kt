@@ -32,10 +32,10 @@ class MyPrefs private constructor(context: Context, private val scope: Coroutine
         fun getPrefs(context: Context): MyPrefs {
             return Instance ?: synchronized(this) {
                 val scope = if (context is MainActivity) {
-                    logger.debug("context is MainActivity")
+                    logger.trace("context is MainActivity")
                     context.lifecycleScope
                 } else {
-                    logger.debug("context is not MainActivity")
+                    logger.warn("context is not MainActivity")
                     CoroutineScope(Job() + Dispatchers.Main)
                 }
                 MyPrefs(context, scope).also { Instance = it }

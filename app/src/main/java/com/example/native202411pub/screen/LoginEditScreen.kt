@@ -90,7 +90,11 @@ fun LoginEditScreen(onBack: () -> Unit) {
                 ),
                 keyboardActions = KeyboardActions(
                     onDone = {
-                        logger.debug("Keyboard onDone")
+                        scope.launch {
+                            logger.trace("Keyboard onDone")
+                            prefs.setLogin(login)
+                            onBack()
+                        }
                     }
                 ),
                 singleLine = true,
@@ -99,7 +103,7 @@ fun LoginEditScreen(onBack: () -> Unit) {
             Text(text = errorMessage)
             Button(onClick = {
                 scope.launch {
-                    logger.debug("Button onClick Done")
+                    logger.trace("Button onClick Done")
                     prefs.setLogin(login)
                     onBack()
                 }

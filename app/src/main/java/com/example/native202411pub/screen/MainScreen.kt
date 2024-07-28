@@ -2,11 +2,15 @@ package com.example.native202411pub.screen
 
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -52,38 +56,66 @@ fun MainScreen(modifier: Modifier = Modifier) {
             }
         }
         composable(MyScreen.MAIN.name) {
-            Scaffold(topBar = {
-                TopAppBar(
-                    colors = topAppBarColors(
-                        containerColor = MaterialTheme.colorScheme.primaryContainer,
-                        titleContentColor = MaterialTheme.colorScheme.primary
-                    ),
-                    title = { Text(text = mainScreen.title) },
-                    actions = {
-                        IconButton(onClick = {
-                            navController.navigate(MyScreen.SETTINGS.name)
-                        }) {
-                            Icon(
-                                Icons.Filled.Settings,
-                                contentDescription = "Settings",
-                                tint = MaterialTheme.colorScheme.primary
-                            )
+            Scaffold(modifier = modifier,
+                topBar = {
+                    TopAppBar(
+                        colors = topAppBarColors(
+                            containerColor = MaterialTheme.colorScheme.primaryContainer,
+                            titleContentColor = MaterialTheme.colorScheme.primary
+                        ),
+                        title = { Text(text = "${MyScreen.MAIN.title} ${mainScreen.title}") },
+                        actions = {
+                            IconButton(onClick = {
+                                navController.navigate(MyScreen.SETTINGS.name)
+                            }) {
+                                Icon(
+                                    Icons.Filled.Settings,
+                                    contentDescription = "Settings",
+                                    tint = MaterialTheme.colorScheme.primary
+                                )
+                            }
                         }
+                    )
+                },
+                bottomBar = {
+                    NavigationBar(
+                        containerColor = MaterialTheme.colorScheme.primaryContainer,
+                        contentColor = MaterialTheme.colorScheme.primary
+                    ) {
+                        NavigationBarItem(
+                            selected = mainScreen == MyScreen.HOME,
+                            onClick = { mainScreen = MyScreen.HOME },
+                            icon = { Icon(Icons.Filled.Home, contentDescription = "Home") },
+                            label = { Text(text = "Home") }
+                        )
+                        NavigationBarItem(
+                            selected = mainScreen == MyScreen.COMM,
+                            onClick = { mainScreen = MyScreen.COMM },
+                            icon = { Icon(Icons.Filled.Search, contentDescription = "Comm") },
+                            label = { Text(text = "Comm") }
+                        )
                     }
-                )
-            }, modifier = modifier) { innerPadding ->
-//                HomeScreen(
-//                    modifier = Modifier.padding(innerPadding)
-//                )
-                CommScreen(
-                    modifier = Modifier.padding(innerPadding),
-                    onHistory = {
-                        navController.navigate(MyScreen.USERS.name)
-                    },
-                    onEdit = {
-                        navController.navigate(MyScreen.LOGIN_EDIT.name)
+                }
+            ) { innerPadding ->
+                when (mainScreen) {
+                    MyScreen.HOME -> {
+                        HomeScreen(
+                            modifier = Modifier.padding(innerPadding)
+                        )
                     }
-                )
+
+                    else -> {
+                        CommScreen(
+                            modifier = Modifier.padding(innerPadding),
+                            onHistory = {
+                                navController.navigate(MyScreen.USERS.name)
+                            },
+                            onEdit = {
+                                navController.navigate(MyScreen.LOGIN_EDIT.name)
+                            }
+                        )
+                    }
+                }
             }
         }
         composable(MyScreen.LOGIN_EDIT.name) {

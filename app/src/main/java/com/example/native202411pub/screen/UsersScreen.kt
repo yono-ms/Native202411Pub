@@ -140,7 +140,7 @@ fun SwipeBox(item: GitHubUsers, onClick: () -> Unit, onDelete: () -> Unit) {
         }) {
         UsersItem(
             modifier = Modifier.clickable {
-                logger.debug("UsersItem onClick ${item.login}")
+                logger.trace("UsersItem onClick ${item.login}")
                 onClick()
             },
             item = item

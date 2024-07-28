@@ -3,12 +3,12 @@ package com.example.native202411pub.screen
 enum class MyScreen(
     val title: String
 ) {
-    MAIN("Main"),
+    MAIN("Native202411Pub"),
     SPLASH("Splash"),
     TUTORIAL("Tutorial"),
     HOME("Home"),
     SETTINGS("Settings"),
-    COMM("Comm"),
+    COMM("GitHub"),
     LOGIN_EDIT("Login Edit"),
     USERS("Users")
 }

@@ -64,9 +64,9 @@ fun SettingsScreen(onBack: () -> Unit) {
                 Spacer(modifier = Modifier.weight(1F))
                 Switch(checked = isShowTutorial.value, onCheckedChange = {
                     scope.launch {
-                        logger.debug("onCheckedChange START $it")
+                        logger.trace("onCheckedChange START $it")
                         prefs.setIsShowTutorial(it)
-                        logger.debug("onCheckedChange END")
+                        logger.trace("onCheckedChange END")
                     }
                 })
             }

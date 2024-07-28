@@ -45,9 +45,9 @@ fun TutorialScreen(onFinish: () -> Unit) {
             ) {
                 Checkbox(checked = isShowTutorial.value, onCheckedChange = {
                     scope.launch {
-                        logger.debug("onCheckedChange START $it")
+                        logger.trace("onCheckedChange START $it")
                         prefs.setIsShowTutorial(it)
-                        logger.debug("onCheckedChange END")
+                        logger.trace("onCheckedChange END")
                     }
                 })
                 Text(text = "Show Tutorial")

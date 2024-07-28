@@ -35,18 +35,18 @@ class MyNetworkStatus private constructor(context: Context) {
         val callback = object : ConnectivityManager.NetworkCallback() {
             val list = mutableListOf<Network>()
             override fun onAvailable(network: Network) {
-                logger.debug("onAvailable {}", network)
+                logger.trace("onAvailable {}", network)
                 list.add(network)
                 trySend(true)
             }
 
             override fun onUnavailable() {
-                logger.debug("onUnavailable")
+                logger.trace("onUnavailable")
                 trySend(false)
             }
 
             override fun onLost(network: Network) {
-                logger.debug("onLost {}", network)
+                logger.trace("onLost {}", network)
                 list.remove(network)
                 if (list.isEmpty()) {
                     trySend(false)

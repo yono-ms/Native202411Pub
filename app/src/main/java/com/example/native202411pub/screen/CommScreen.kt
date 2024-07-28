@@ -66,7 +66,7 @@ fun CommScreen(
     val updateRepos: () -> Unit = {
         scope.launch {
             runCatching {
-                logger.debug("updateRepos START")
+                logger.trace("updateRepos START")
                 messsage = "loading"
                 dao.getRepos(login.value).forEach {
                     logger.debug("deleteRepos {}", it)
@@ -84,7 +84,7 @@ fun CommScreen(
             }.onFailure {
                 messsage = it.localizedMessage ?: "error"
             }.also {
-                logger.debug("updateRepos END")
+                logger.trace("updateRepos END")
             }
         }
     }
@@ -99,7 +99,7 @@ fun CommScreen(
                     .weight(1F)
                     .background(Color.LightGray)
                     .clickable {
-                        logger.debug("onClick")
+                        logger.trace("onClick")
                         onEdit()
                     }
             ) {
