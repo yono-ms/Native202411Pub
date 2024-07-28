@@ -30,7 +30,7 @@ import com.example.native202411pub.ui.theme.Native202411PubTheme
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainScreen(modifier: Modifier = Modifier) {
-    var mainScreen by rememberSaveable { mutableStateOf(MyScreen.COMM) }
+    var mainScreen by rememberSaveable { mutableStateOf(MyScreen.HOME) }
     val navController = rememberNavController()
     NavHost(
         navController = navController,
