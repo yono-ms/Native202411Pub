@@ -11,6 +11,7 @@ import com.example.native202411pub.screen.MainAlertDialog
 import com.example.native202411pub.screen.MainScreen
 import com.example.native202411pub.ui.theme.Native202411PubTheme
 import kotlinx.coroutines.flow.MutableStateFlow
+import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import kotlin.coroutines.Continuation
 import kotlin.coroutines.resume
@@ -20,12 +21,10 @@ class MainActivity : ComponentActivity() {
 
     companion object {
         private lateinit var Instance: MainActivity
-        fun shared(): MainActivity {
+        internal fun shared(): MainActivity {
             return Instance
         }
     }
-
-    private val logger = LoggerFactory.getLogger(MainActivity::class.java)
 
     private fun loggerTest() {
         logger.trace("Logger TEST")
@@ -41,7 +40,7 @@ class MainActivity : ComponentActivity() {
     private val textFlow: MutableStateFlow<String> = MutableStateFlow("")
 
     private lateinit var continuation: Continuation<Boolean>
-    suspend fun showAlert(
+    internal suspend fun showAlert(
         confirm: String,
         dismiss: String?,
         title: String?,
@@ -81,3 +80,16 @@ class MainActivity : ComponentActivity() {
         }
     }
 }
+
+//region Top Level
+val logger: Logger by lazy { LoggerFactory.getLogger("Native202411Pub") }
+
+suspend fun showDialog(
+    text: String,
+    confirm: String = "OK",
+    dismiss: String? = null,
+    title: String? = null
+): Boolean {
+    return MainActivity.shared().showAlert(confirm, dismiss, title, text)
+}
+//endregion
