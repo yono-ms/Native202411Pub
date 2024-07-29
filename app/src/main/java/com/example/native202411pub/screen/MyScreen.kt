@@ -9,6 +9,5 @@ enum class MyScreen(
     HOME("Home"),
     SETTINGS("Settings"),
     COMM("GitHub"),
-    LOGIN_EDIT("Login Edit"),
     USERS("Users")
 }

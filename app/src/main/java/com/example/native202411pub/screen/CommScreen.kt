@@ -39,6 +39,7 @@ import com.example.native202411pub.database.MyDatabase
 import com.example.native202411pub.extension.fromIsoToDate
 import com.example.native202411pub.extension.toBestString
 import com.example.native202411pub.logger
+import com.example.native202411pub.screen.dialog.EditDialog
 import com.example.native202411pub.server.GitHubAPI
 import com.example.native202411pub.server.GitHubRepos
 import com.example.native202411pub.server.GitHubUsers
@@ -49,8 +50,7 @@ import java.util.Date
 @Composable
 fun CommScreen(
     modifier: Modifier = Modifier,
-    onHistory: () -> Unit,
-    onEdit: () -> Unit
+    onHistory: () -> Unit
 ) {
     val scope = rememberCoroutineScope()
     val prefs = MyPrefs.getPrefs(LocalContext.current)
@@ -62,6 +62,7 @@ fun CommScreen(
             initial = false
         )
     var messsage by remember { mutableStateOf("") }
+    var isVisible by remember { mutableStateOf(false) }
 
     val updateRepos: () -> Unit = {
         scope.launch {
@@ -100,7 +101,7 @@ fun CommScreen(
                     .background(Color.LightGray)
                     .clickable {
                         logger.trace("onClick")
-                        onEdit()
+                        isVisible = true
                     }
             ) {
                 Text(
@@ -118,6 +119,14 @@ fun CommScreen(
         Text(text = messsage)
         HorizontalDivider()
         ReposItems(list = repos.value)
+        if (isVisible) {
+            EditDialog(onDismiss = { isVisible = false }) {
+                scope.launch {
+                    prefs.setLogin(it)
+                    isVisible = false
+                }
+            }
+        }
     }
 }
 
@@ -152,7 +161,7 @@ fun ReposItem(name: String, updatedAt: String) {
 @Composable
 fun CommScreenPreview() {
     Native202411PubTheme {
-        CommScreen(modifier = Modifier, onHistory = {}, onEdit = {})
+        CommScreen(modifier = Modifier, onHistory = {})
     }
 }
 

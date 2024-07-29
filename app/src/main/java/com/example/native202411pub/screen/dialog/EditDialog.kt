@@ -27,7 +27,6 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
-import com.example.native202411pub.screen.LOGIN_MAX_LENGTH
 import com.example.native202411pub.ui.theme.Native202411PubTheme
 
 @Composable
@@ -94,6 +93,8 @@ fun EditDialog(onDismiss: () -> Unit, onDone: (String) -> Unit) {
         }
     }
 }
+
+const val LOGIN_MAX_LENGTH = 32
 
 @Preview(showBackground = true)
 @Composable

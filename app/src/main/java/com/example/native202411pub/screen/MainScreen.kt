@@ -109,18 +109,10 @@ fun MainScreen(modifier: Modifier = Modifier) {
                             modifier = Modifier.padding(innerPadding),
                             onHistory = {
                                 navController.navigate(MyScreen.USERS.name)
-                            },
-                            onEdit = {
-                                navController.navigate(MyScreen.LOGIN_EDIT.name)
                             }
                         )
                     }
                 }
-            }
-        }
-        composable(MyScreen.LOGIN_EDIT.name) {
-            LoginEditScreen {
-                navController.navigateUp()
             }
         }
         composable(MyScreen.USERS.name) {
