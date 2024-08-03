@@ -71,6 +71,7 @@ dependencies {
     implementation(libs.logback.android)
     implementation(libs.slf4j.api)
     implementation(libs.androidx.room.runtime)
+    implementation(libs.play.services.location)
     ksp(libs.androidx.room.compiler)
     implementation(libs.androidx.room.ktx)
     testImplementation(libs.junit)
