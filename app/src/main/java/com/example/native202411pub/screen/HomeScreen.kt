@@ -95,6 +95,7 @@ fun HomeScreen(modifier: Modifier = Modifier) {
                 }
             }, enabled = permissionFine.value)
         }
+        HorizontalDivider()
         LocationItems(list = locations.value)
     }
 }
@@ -178,7 +179,7 @@ fun HomeScreenPreview() {
 @Composable
 fun PermissionIndicatorPreview() {
     Native202411PubTheme {
-        PermissionIndicator(true, false)
+        PermissionIndicator(permissionCoarse = true, permissionFine = false)
     }
 }
 

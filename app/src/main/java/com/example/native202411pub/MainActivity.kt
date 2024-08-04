@@ -26,7 +26,6 @@ import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -53,10 +52,6 @@ class MainActivity : ComponentActivity() {
     }
 
     //region Location Permission
-    private var _permissionCoarse = MutableStateFlow(false)
-    internal val permissionCoarse: StateFlow<Boolean> = _permissionCoarse
-    private var _permissionFine = MutableStateFlow(false)
-    internal val permissionFine: StateFlow<Boolean> = _permissionFine
 
     private lateinit var locationPermissionContinuation: Continuation<Boolean>
     private val requestPermissionLauncher = registerForActivityResult(
@@ -234,16 +229,16 @@ class MainActivity : ComponentActivity() {
     override fun onResume() {
         super.onResume()
         logger.trace("onResume")
-        _permissionCoarse.value = ContextCompat.checkSelfPermission(
+        permissionCoarse.value = ContextCompat.checkSelfPermission(
             this,
             Manifest.permission.ACCESS_COARSE_LOCATION
         ) == PackageManager.PERMISSION_GRANTED
-        _permissionFine.value = ContextCompat.checkSelfPermission(
+        permissionFine.value = ContextCompat.checkSelfPermission(
             this,
             Manifest.permission.ACCESS_FINE_LOCATION
         ) == PackageManager.PERMISSION_GRANTED
         lifecycleScope.launch {
-            if (_permissionFine.value) {
+            if (permissionFine.value) {
                 if (isRequestingLocation) {
                     startRequestingLocation()
                 }
@@ -277,9 +272,7 @@ suspend fun getLocationPermission(): Boolean {
     return MainActivity.shared().getLocationPermission()
 }
 
-val permissionCoarse: StateFlow<Boolean>
-    get() = MainActivity.shared().permissionCoarse
+val permissionCoarse = MutableStateFlow(false)
 
-val permissionFine: StateFlow<Boolean>
-    get() = MainActivity.shared().permissionFine
+val permissionFine = MutableStateFlow(false)
 //endregion
