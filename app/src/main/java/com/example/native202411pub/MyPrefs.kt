@@ -24,6 +24,7 @@ class MyPrefs private constructor(context: Context, private val scope: Coroutine
 
     companion object {
         private val IS_SHOW_TUTORIAL = booleanPreferencesKey("is_show_tutorial")
+        private val IS_REQUESTING_LOCATION = booleanPreferencesKey("is_requesting_location")
         private val LOGIN = stringPreferencesKey("login")
 
         @Volatile
@@ -59,6 +60,16 @@ class MyPrefs private constructor(context: Context, private val scope: Coroutine
     suspend fun setIsShowTutorial(isShow: Boolean) {
         dataStore.edit {
             it[IS_SHOW_TUTORIAL] = isShow
+        }
+    }
+
+    val isRequestingLocationFlow: Flow<Boolean> = dataStore.data.map {
+        it[IS_REQUESTING_LOCATION] ?: true
+    }
+
+    suspend fun setIsRequestingLocation(isRequesting: Boolean) {
+        dataStore.edit {
+            it[IS_REQUESTING_LOCATION] = isRequesting
         }
     }
 

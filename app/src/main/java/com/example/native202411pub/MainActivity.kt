@@ -1,8 +1,7 @@
 package com.example.native202411pub
 
-import android.Manifest.permission.ACCESS_COARSE_LOCATION
+import android.Manifest
 import android.content.pm.PackageManager
-import android.location.Location
 import android.os.Bundle
 import android.os.Looper
 import androidx.activity.ComponentActivity
@@ -14,18 +13,24 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.lifecycleScope
+import com.example.native202411pub.database.LocationEntity
+import com.example.native202411pub.database.MyDatabase
 import com.example.native202411pub.screen.MainAlertDialog
 import com.example.native202411pub.screen.MainScreen
 import com.example.native202411pub.ui.theme.Native202411PubTheme
 import com.google.android.gms.location.FusedLocationProviderClient
-import com.google.android.gms.location.LocationAvailability
 import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
+import com.google.android.gms.location.Priority
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.launch
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import java.util.Date
 import kotlin.coroutines.Continuation
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
@@ -47,31 +52,54 @@ class MainActivity : ComponentActivity() {
         logger.error("Logger TEST")
     }
 
+    //region Location Permission
+    private var _permissionCoarse = MutableStateFlow(false)
+    internal val permissionCoarse: StateFlow<Boolean> = _permissionCoarse
+    private var _permissionFine = MutableStateFlow(false)
+    internal val permissionFine: StateFlow<Boolean> = _permissionFine
+
     private lateinit var locationPermissionContinuation: Continuation<Boolean>
     private val requestPermissionLauncher = registerForActivityResult(
-        ActivityResultContracts.RequestPermission()
-    ) { granted ->
-        logger.info("RequestPermission {}", granted)
-        locationPermissionContinuation.resume(granted)
+        ActivityResultContracts.RequestMultiplePermissions()
+    ) { permissions ->
+        logger.info("RequestPermission {}", permissions)
+        when {
+            permissions.getOrDefault(Manifest.permission.ACCESS_FINE_LOCATION, false) -> {
+                locationPermissionContinuation.resume(true)
+            }
+
+            else -> {
+                locationPermissionContinuation.resume(false)
+            }
+        }
     }
 
     private suspend fun requestLocationPermission() = suspendCoroutine { continuation ->
         locationPermissionContinuation = continuation
-        requestPermissionLauncher.launch(ACCESS_COARSE_LOCATION)
+        requestPermissionLauncher.launch(
+            arrayOf(
+                Manifest.permission.ACCESS_COARSE_LOCATION,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            )
+        )
     }
 
     internal suspend fun getLocationPermission(): Boolean {
         if (ContextCompat.checkSelfPermission(
                 this,
-                ACCESS_COARSE_LOCATION
+                Manifest.permission.ACCESS_FINE_LOCATION
             ) == PackageManager.PERMISSION_GRANTED
         ) {
             logger.info("checkSelfPermission granted")
             return true
         } else {
-            if (ActivityCompat.shouldShowRequestPermissionRationale(this, ACCESS_COARSE_LOCATION)) {
+            if (ActivityCompat.shouldShowRequestPermissionRationale(
+                    this,
+                    Manifest.permission.ACCESS_FINE_LOCATION
+                )
+            ) {
                 logger.info("shouldShowRequestPermissionRationale true")
-                showAlert("OK", null, null, "App need permission")
+                showAlert("OK", null, null, "App need ACCESS_FINE_LOCATION")
             } else {
                 logger.info("shouldShowRequestPermissionRationale false")
             }
@@ -79,49 +107,81 @@ class MainActivity : ComponentActivity() {
             return result
         }
     }
+    //endregion Location Permission
 
+    //region Access Fine Location
     private lateinit var fusedLocationClient: FusedLocationProviderClient
-    internal suspend fun getLastLocation() = suspendCoroutine { continuation ->
-        if (ContextCompat.checkSelfPermission(
-                this,
-                ACCESS_COARSE_LOCATION
-            ) == PackageManager.PERMISSION_GRANTED
-        ) {
-            fusedLocationClient.lastLocation.addOnSuccessListener {
-                continuation.resume(it)
+    private var isRequestingLocation: Boolean = false
+    private val locationCallback = object : LocationCallback() {
+        override fun onLocationResult(locationResult: LocationResult) {
+            logger.trace("LocationCallback onLocationResult {}", locationResult)
+            lifecycleScope.launch {
+                val dao = MyDatabase.getDatabase(this@MainActivity).locationDao()
+                for (location in locationResult.locations) {
+                    dao.insertLocation(
+                        LocationEntity(
+                            locationId = 0,
+                            latitude = location.latitude,
+                            longitude = location.longitude,
+                            updatedAt = Date().time
+                        )
+                    )
+                }
             }
-        } else {
-            continuation.resume(null)
         }
     }
 
-    internal suspend fun locationUpdate() = suspendCoroutine { continuation ->
-        val callback = object : LocationCallback() {
-            override fun onLocationResult(locationResult: LocationResult) {
-                logger.info("LocationCallback onLocationResult {}", locationResult)
-                continuation.resume(locationResult.locations.lastOrNull())
-                fusedLocationClient.removeLocationUpdates(this)
-            }
-
-            override fun onLocationAvailability(locationAvailability: LocationAvailability) {
-                super.onLocationAvailability(locationAvailability)
-                logger.info("LocationCallback onLocationAvailability {}", locationAvailability)
-            }
-        }
+    private fun startRequestingLocation() {
+        logger.trace("startRequestingLocation")
         if (ContextCompat.checkSelfPermission(
                 this,
-                ACCESS_COARSE_LOCATION
+                Manifest.permission.ACCESS_FINE_LOCATION
             ) == PackageManager.PERMISSION_GRANTED
         ) {
-            val locationRequest = LocationRequest.Builder(10000).build()
+            val locationRequest = LocationRequest.Builder(
+                Priority.PRIORITY_HIGH_ACCURACY,
+                10000
+            ).build()
             fusedLocationClient.requestLocationUpdates(
                 locationRequest,
-                callback,
+                locationCallback,
                 Looper.getMainLooper()
             )
         }
     }
 
+    private fun stopRequestingLocation() {
+        logger.trace("stopRequestingLocation")
+        fusedLocationClient.removeLocationUpdates(locationCallback)
+    }
+
+    private fun watchRequestingLocation() {
+        lifecycleScope.launch {
+            MyPrefs.getPrefs(this@MainActivity).isRequestingLocationFlow.collect {
+                logger.info("isRequestingLocationFlow collect {}", it)
+                if (it) {
+                    if (!isRequestingLocation) {
+                        logger.trace("start")
+                        startRequestingLocation()
+                        isRequestingLocation = true
+                    } else {
+                        logger.trace("already started")
+                    }
+                } else {
+                    if (isRequestingLocation) {
+                        logger.trace("stop")
+                        stopRequestingLocation()
+                        isRequestingLocation = false
+                    } else {
+                        logger.trace("already stopped")
+                    }
+                }
+            }
+        }
+    }
+    //endregion Access Fine Location
+
+    //region AlertDialog
     private val confirmFlow: MutableStateFlow<String> = MutableStateFlow("")
     private val dismissFlow: MutableStateFlow<String?> = MutableStateFlow(null)
     private val titleFlow: MutableStateFlow<String?> = MutableStateFlow(null)
@@ -140,12 +200,14 @@ class MainActivity : ComponentActivity() {
         titleFlow.value = title
         textFlow.value = text
     }
+    //endregion AlertDialog
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         Instance = this
         loggerTest()
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
+        watchRequestingLocation()
         enableEdgeToEdge()
         setContent {
             Native202411PubTheme {
@@ -168,6 +230,35 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
+
+    override fun onResume() {
+        super.onResume()
+        logger.trace("onResume")
+        _permissionCoarse.value = ContextCompat.checkSelfPermission(
+            this,
+            Manifest.permission.ACCESS_COARSE_LOCATION
+        ) == PackageManager.PERMISSION_GRANTED
+        _permissionFine.value = ContextCompat.checkSelfPermission(
+            this,
+            Manifest.permission.ACCESS_FINE_LOCATION
+        ) == PackageManager.PERMISSION_GRANTED
+        lifecycleScope.launch {
+            if (_permissionFine.value) {
+                if (isRequestingLocation) {
+                    startRequestingLocation()
+                }
+            } else {
+                val prefs = MyPrefs.getPrefs(this@MainActivity)
+                prefs.setIsRequestingLocation(false)
+            }
+        }
+    }
+
+    override fun onPause() {
+        super.onPause()
+        logger.trace("onPause")
+        stopRequestingLocation()
+    }
 }
 
 //region Top Level
@@ -186,11 +277,9 @@ suspend fun getLocationPermission(): Boolean {
     return MainActivity.shared().getLocationPermission()
 }
 
-suspend fun getLastLocation(): Location? {
-    return MainActivity.shared().getLastLocation()
-}
+val permissionCoarse: StateFlow<Boolean>
+    get() = MainActivity.shared().permissionCoarse
 
-suspend fun locationUpdate(): Location? {
-    return MainActivity.shared().locationUpdate()
-}
+val permissionFine: StateFlow<Boolean>
+    get() = MainActivity.shared().permissionFine
 //endregion

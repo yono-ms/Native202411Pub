@@ -8,12 +8,13 @@ import com.example.native202411pub.server.GitHubRepos
 import com.example.native202411pub.server.GitHubUsers
 
 @Database(
-    entities = [GitHubUsers::class, GitHubRepos::class],
+    entities = [GitHubUsers::class, GitHubRepos::class, LocationEntity::class],
     version = 1,
     exportSchema = false
 )
 abstract class MyDatabase : RoomDatabase() {
     abstract fun gitHubDao(): GitHubDao
+    abstract fun locationDao(): LocationDao
 
     companion object {
         @Volatile
