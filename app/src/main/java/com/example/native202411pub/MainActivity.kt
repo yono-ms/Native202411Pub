@@ -41,6 +41,8 @@ class MainActivity : ComponentActivity() {
         internal fun shared(): MainActivity {
             return Instance
         }
+        val permissionCoarse = MutableStateFlow(false)
+        val permissionFine = MutableStateFlow(false)
     }
 
     private fun loggerTest() {
@@ -271,8 +273,4 @@ suspend fun showDialog(
 suspend fun getLocationPermission(): Boolean {
     return MainActivity.shared().getLocationPermission()
 }
-
-val permissionCoarse = MutableStateFlow(false)
-
-val permissionFine = MutableStateFlow(false)
 //endregion

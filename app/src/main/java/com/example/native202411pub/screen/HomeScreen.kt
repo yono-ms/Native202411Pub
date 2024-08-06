@@ -28,14 +28,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.example.native202411pub.MainActivity
 import com.example.native202411pub.MyPrefs
 import com.example.native202411pub.database.LocationEntity
 import com.example.native202411pub.database.MyDatabase
 import com.example.native202411pub.extension.toBestString
 import com.example.native202411pub.getLocationPermission
 import com.example.native202411pub.logger
-import com.example.native202411pub.permissionCoarse
-import com.example.native202411pub.permissionFine
 import com.example.native202411pub.showDialog
 import com.example.native202411pub.ui.theme.Native202411PubTheme
 import kotlinx.coroutines.launch
@@ -49,8 +48,8 @@ fun HomeScreen(modifier: Modifier = Modifier) {
     val isRequestingLocationFlow = prefs.isRequestingLocationFlow.collectAsState(initial = false)
     val dao = MyDatabase.getDatabase(context).locationDao()
     val locations = dao.getAllLocationsFlow().collectAsState(initial = listOf())
-    val permissionCoarse = permissionCoarse.collectAsState()
-    val permissionFine = permissionFine.collectAsState()
+    val permissionCoarse = MainActivity.permissionCoarse.collectAsState()
+    val permissionFine = MainActivity.permissionFine.collectAsState()
 
     LaunchedEffect(key1 = true) {
         logger.trace("HomeScreen LaunchedEffect START")
