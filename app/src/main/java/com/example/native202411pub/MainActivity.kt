@@ -38,11 +38,16 @@ class MainActivity : ComponentActivity() {
 
     companion object {
         private lateinit var Instance: MainActivity
-        internal fun shared(): MainActivity {
-            return Instance
-        }
         val permissionCoarse = MutableStateFlow(false)
         val permissionFine = MutableStateFlow(false)
+        suspend fun dialog(
+            text: String,
+            confirm: String = "OK",
+            dismiss: String? = null,
+            title: String? = null
+        ): Boolean {
+            return Instance.showAlertDialog(confirm, dismiss, title, text)
+        }
     }
 
     private fun loggerTest() {
@@ -71,17 +76,7 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    private suspend fun requestLocationPermission() = suspendCoroutine { continuation ->
-        locationPermissionContinuation = continuation
-        requestPermissionLauncher.launch(
-            arrayOf(
-                Manifest.permission.ACCESS_COARSE_LOCATION,
-                Manifest.permission.ACCESS_FINE_LOCATION
-            )
-        )
-    }
-
-    internal suspend fun getLocationPermission(): Boolean {
+    private suspend fun getLocationPermission(): Boolean {
         if (ContextCompat.checkSelfPermission(
                 this,
                 Manifest.permission.ACCESS_FINE_LOCATION
@@ -96,11 +91,19 @@ class MainActivity : ComponentActivity() {
                 )
             ) {
                 logger.info("shouldShowRequestPermissionRationale true")
-                showAlert("OK", null, null, "App need ACCESS_FINE_LOCATION")
+                dialog("App need ACCESS_FINE_LOCATION")
             } else {
                 logger.info("shouldShowRequestPermissionRationale false")
             }
-            val result = requestLocationPermission()
+            val result = suspendCoroutine { continuation ->
+                locationPermissionContinuation = continuation
+                requestPermissionLauncher.launch(
+                    arrayOf(
+                        Manifest.permission.ACCESS_COARSE_LOCATION,
+                        Manifest.permission.ACCESS_FINE_LOCATION
+                    )
+                )
+            }
             return result
         }
     }
@@ -159,8 +162,12 @@ class MainActivity : ComponentActivity() {
                 if (it) {
                     if (!isRequestingLocation) {
                         logger.trace("start")
-                        startRequestingLocation()
-                        isRequestingLocation = true
+                        if (getLocationPermission()) {
+                            startRequestingLocation()
+                            isRequestingLocation = true
+                        } else {
+                            MyPrefs.getPrefs(this@MainActivity).setIsRequestingLocation(false)
+                        }
                     } else {
                         logger.trace("already started")
                     }
@@ -185,7 +192,7 @@ class MainActivity : ComponentActivity() {
     private val textFlow: MutableStateFlow<String> = MutableStateFlow("")
 
     private lateinit var alertContinuation: Continuation<Boolean>
-    internal suspend fun showAlert(
+    private suspend fun showAlertDialog(
         confirm: String,
         dismiss: String?,
         title: String?,
@@ -260,17 +267,4 @@ class MainActivity : ComponentActivity() {
 
 //region Top Level
 val logger: Logger by lazy { LoggerFactory.getLogger("Native202411Pub") }
-
-suspend fun showDialog(
-    text: String,
-    confirm: String = "OK",
-    dismiss: String? = null,
-    title: String? = null
-): Boolean {
-    return MainActivity.shared().showAlert(confirm, dismiss, title, text)
-}
-
-suspend fun getLocationPermission(): Boolean {
-    return MainActivity.shared().getLocationPermission()
-}
 //endregion

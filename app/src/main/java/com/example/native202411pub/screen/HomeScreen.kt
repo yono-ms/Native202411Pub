@@ -19,7 +19,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
@@ -33,9 +32,7 @@ import com.example.native202411pub.MyPrefs
 import com.example.native202411pub.database.LocationEntity
 import com.example.native202411pub.database.MyDatabase
 import com.example.native202411pub.extension.toBestString
-import com.example.native202411pub.getLocationPermission
 import com.example.native202411pub.logger
-import com.example.native202411pub.showDialog
 import com.example.native202411pub.ui.theme.Native202411PubTheme
 import kotlinx.coroutines.launch
 import java.util.Date
@@ -51,17 +48,10 @@ fun HomeScreen(modifier: Modifier = Modifier) {
     val permissionCoarse = MainActivity.permissionCoarse.collectAsState()
     val permissionFine = MainActivity.permissionFine.collectAsState()
 
-    LaunchedEffect(key1 = true) {
-        logger.trace("HomeScreen LaunchedEffect START")
-        if (!permissionFine.value) {
-            showDialog("Home Screen need permission")
-            getLocationPermission()
-        }
-        logger.trace("HomeScreen LaunchedEffect END")
-    }
     Column(modifier = modifier) {
         PermissionIndicator(permissionCoarse.value, permissionFine.value)
         if (!permissionFine.value) {
+            Text(text = "Home Screen need ACCESS_FINE_LOCATION")
             Row(
                 modifier = Modifier.padding(8.dp),
                 verticalAlignment = Alignment.CenterVertically
@@ -92,7 +82,7 @@ fun HomeScreen(modifier: Modifier = Modifier) {
                     logger.info("onCheckedChange {}", it)
                     prefs.setIsRequestingLocation(it)
                 }
-            }, enabled = permissionFine.value)
+            })
         }
         HorizontalDivider()
         LocationItems(list = locations.value)
