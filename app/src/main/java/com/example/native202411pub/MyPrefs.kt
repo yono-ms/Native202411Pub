@@ -64,7 +64,7 @@ class MyPrefs private constructor(context: Context, private val scope: Coroutine
     }
 
     val isRequestingLocationFlow: Flow<Boolean> = dataStore.data.map {
-        it[IS_REQUESTING_LOCATION] ?: true
+        it[IS_REQUESTING_LOCATION] ?: false
     }
 
     suspend fun setIsRequestingLocation(isRequesting: Boolean) {
